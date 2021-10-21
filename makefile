@@ -1,6 +1,6 @@
 all:clean comp run
 comp:
-	g++ -o app output_vmstat.c
+	g++ -o app output_vmstat.cpp Config.cpp
 run:
 	./app
 .PHONY : clean
