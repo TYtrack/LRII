@@ -1,5 +1,8 @@
+#include <sys/sysinfo.h>
+#include <stdio.h>
+#include <string.h>
 
-class MemOccupy{
+class MemoryInfo{
 private:
     double total_mem;       //单位为M
     double free_mem;
@@ -11,5 +14,5 @@ private:
 public:
     void getCurrentInfo();
     void getInfoString(char * retMessage,int msgLen);
-}
+};
 

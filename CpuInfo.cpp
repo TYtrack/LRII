@@ -1,5 +1,8 @@
 #include "CpuInfo.h"
 
+CpuInfo::CpuInfo(){
+    getCurrentInfo();
+}
 
 void CpuInfo::getCurrentInfo(){
     FILE *fd;
@@ -20,6 +23,7 @@ void CpuInfo::getCurrentInfo(){
 }
 
 void CpuInfo::getInfoString(char * retMessage,int msgLen){
+    getCurrentInfo();
     memset(retMessage,'\0',msgLen);
     sprintf(retMessage,"处理器名字：%s\t用户态的运行时间：%8u\t高优先级运行时间：%8u\t内核态运行时间：%8u\tIO等待时间：%8u\t除IO等待的空闲时间：%8u\t硬中断时间：%8u\t软中断时间：%8u\n",
                         this->name, this->user, this->nice,this->system, 
@@ -27,7 +31,7 @@ void CpuInfo::getInfoString(char * retMessage,int msgLen){
    
 }
 
-double CpuInfo::calCpuOccupy(cpu_occupy_t *o, cpu_occupy_t *n){
+double CpuInfo::calCpuOccupy(CpuInfo *o, CpuInfo *n){
     double od, nd;
     double id, sd;
     double cpu_use ;
@@ -49,4 +53,18 @@ double CpuInfo::calCpuOccupy(cpu_occupy_t *o, cpu_occupy_t *n){
         cpu_use = 0;
     return cpu_use;
 
+}
+
+void CpuInfo::getCpuRateInfo()
+{
+    CpuInfo cpu_info;
+    cpu_info.getCurrentInfo();
+    cpu_info.cpuRate = calCpuOccupy(this,& cpu_info);  
+    *this = cpu_info; 
+}
+    
+void CpuInfo::getCpuRateInfoString(char * retMessage,int msgLen){
+    getCpuRateInfo();
+    memset(retMessage,'\0',msgLen);
+    sprintf(retMessage,"CPU使用率：%8.2f\n",cpuRate);
 }

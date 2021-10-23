@@ -1,4 +1,4 @@
-#include “MemoryInfo.h”
+#include "MemoryInfo.h"
 
 
 
@@ -29,6 +29,7 @@ void MemoryInfo::getCurrentInfo(){
 } 
 
 void MemoryInfo::getInfoString(char * retMessage,int msgLen){
+    getCurrentInfo();
     memset(retMessage,'\0',msgLen);
     sprintf(retMessage,"总内存：%8.2f\t空闲内存：%8.2f\t内存使用率：%8.2f\t交换内存：%8.2f\t交换空闲内存：%8.2f\t交换空闲内存使用率：%8.2f\t系统运行时间：%ld\n",
                 this->total_mem, this->free_mem, this->mem_rate, this->total_swap_mem, 

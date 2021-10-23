@@ -1,5 +1,8 @@
+#define MAXBUFSIZE 1024
+#include <stdio.h>
+#include <string.h>
 
-class IoOccupy{
+class IoInfo{
 private:
     char name[20];     
     float read_tps; //每秒钟发送到的I/O读请求数
@@ -9,5 +12,5 @@ private:
 public:
     void getCurrentInfo();
     void getInfoString(char * retMessage,int msgLen);
-}
+};
 

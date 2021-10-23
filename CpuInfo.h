@@ -1,3 +1,7 @@
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+
 class CpuInfo{
 private:
     char name[20];                  //定义一个char类型的数组名name有20个元素
@@ -12,18 +16,9 @@ private:
     double calCpuOccupy(CpuInfo *o, CpuInfo *n);
 
 public:
+    CpuInfo();
     void getCurrentInfo();
     void getInfoString(char * retMessage,int msgLen);
-    
-    void getCpuRateInfo(CpuInfo *cpu_info )
-    {
-        this->cpu_rate = cal_cpu_occupy(this,cpu_info);   
-    }
-    
-    void getCpuRateInfoString(char * retMessage,int msgLen){
-        memset(retMessage,'\0',msgLen);
-        sprintf(retMessage,"CPU使用率：%8.2f\n",cpuRate);
-    }
-
-
-}
+    void getCpuRateInfo();
+    void getCpuRateInfoString(char * retMessage,int msgLen);
+};

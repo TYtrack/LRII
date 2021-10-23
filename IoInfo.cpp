@@ -17,7 +17,8 @@ void IoInfo::getCurrentInfo(){
     fgets(buffer, sizeof(buffer), pipe);
     fgets(buffer, sizeof(buffer), pipe);
     fgets(buffer, sizeof(buffer), pipe);
-    io_occupy_t temp;
+    IoInfo temp;
+    int i=0;
     while (strcmp("\n",buffer)!=0)
     {
         sscanf(buffer,"%s %f %f %f %f ",temp.name,&temp.read_tps, &temp.write_tps,&temp.read_block,&temp.write_block);    
@@ -36,6 +37,7 @@ void IoInfo::getCurrentInfo(){
 
 
 void IoInfo::getInfoString(char * retMessage,int msgLen){
+    getCurrentInfo();
     memset(retMessage,'\0',msgLen);
     sprintf(retMessage,"每秒读IO次数：%8.2f\t每秒写IO次数：%8.2f\t每秒读KB数：%8.2f\t每秒写KB数：%8.2f\n", 
                     this->read_tps, this->write_block, this->read_block, this->write_tps);
