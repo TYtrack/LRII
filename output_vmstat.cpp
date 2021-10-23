@@ -9,10 +9,21 @@
 #include <fcntl.h>
 #include <time.h>
 #include "config/Config.h"
+#include "MemoryInfo.h"
+#include "CpuInfo.h"
+#include "IoInfo.h"
+
 #include <iostream>
 using namespace std;
 #define MAXBUFSIZE 1024
 
+
+//mysystem(cmd_date, info_buff, 100);
+//printf("%s",info_buff);
+//mysystem(cmd_cpu_info_head, info_buff, 100);
+//printf("%s",info_buff);
+//mysystem(cmd_cpu_info, info_buff, 100);
+//printf("子进程获取%s",info_buff);
 int mysystem(char* cmdstring, char* buf, int len)
 {
       int   fd[2];
@@ -69,93 +80,94 @@ void getCurrentTime( char * retMessage,int msgLen){
 const char * logfile_path = "pc_info.log";
 
 
+
 int main(){
-    int port;  
-    std::string ipAddress;  
-    std::string username;  
-    std::string password;  
-    const char ConfigFile[]= "config.ini";   
-    Config configSettings(ConfigFile);  
-      
-    port = configSettings.Read("email", 0);  
-    ipAddress = configSettings.Read("max_cpu_rate", ipAddress);  
-    username = configSettings.Read("max_swap_mem_rate", username);  
-    password = configSettings.Read("password", string("nms"));  
-    std::cout<<"port:"<<port<<std::endl;  
-    std::cout<<"ipAddress:"<<ipAddress<<std::endl;  
-    std::cout<<"username:"<<username<<std::endl;  
-    std::cout<<"password:"<<password<<std::endl;  
-      
-    return 0;  
+    int log_fd = open(logfile_path,O_RDWR|O_APPEND);
+    char retMessage[300];
+
+    MemoryInfo *mem_info = new MemoryInfo();
+    IoInfo *io_info = new IoInfo();
+    CpuInfo *cpu_info =new CpuInfo();
+
+    printf("-----------\n");
+    int i=0;
+
+    
+    
+    int pipefd[2];
+    int ret = pipe(pipefd);
+    int j=1;
+    while(j++<6){
+        mem_info->getInfoString(retMessage,300);
+        write(log_fd,retMessage,strlen(retMessage));
+
+        io_info->getInfoString(retMessage,300);
+        write(log_fd,retMessage,strlen(retMessage));
+
+        cpu_info->getCpuRateInfoString(retMessage,300);
+        write(log_fd,retMessage,strlen(retMessage));
+
+        cpu_info->getInfoString(retMessage,300);
+        write(log_fd,retMessage,strlen(retMessage));
+
+        sleep(5);
+    }
+
+    // int pid_ = fork();
+    // if(pid_==-1)
+    // {
+    //     delete mem_info;
+    //     close(log_fd);
+    //     return -1;
+    // }
+    // if(pid_==0){
+    //     close(pipefd[0]);
+    //     // child
+    //     while(i<=10){
+    //         i++;
+    //         i%=10;
+            
+    //         mem_info->getInfoString(retMessage,300);
+    //         write(log_fd,retMessage,strlen(retMessage));
+
+    //         io_info->getInfoString(retMessage,300);
+    //         write(log_fd,retMessage,strlen(retMessage));
+
+    //         sleep(3);
+            
+    //     }    
+    // }else{
+    //     // parent
+    //     while( 1){
+    //         close(pipefd[1]);
+    //         read(pipefd[0],retMessage,sizeof(retMessage));
+    //         printf("父进程管道: %s",retMessage);
+    //     }
+    // }
+    delete io_info;
+    delete mem_info;
+    delete cpu_info;
+    close(log_fd);
+    return 0;
 }
 
+
 // int main(){
-//     int log_fd = open(logfile_path,O_RDWR|O_APPEND);
-    
-//     int i=0;
-//     struct sysinfo s_info;
-//     char info_buff[100];
-//     io_occupy_t * io_info=new io_occupy_t();
-//     mem_occupy_t * mem_info =new mem_occupy_t();
-//     cpu_occupy_t * cpu_info= new cpu_occupy_t();
-    
-//     char retMessage[300];
-//     int pipefd[2];
-//     int ret = pipe(pipefd);
-
-//     int pid_ = fork();
-//     if(pid_==-1)
-//     {
-//         free(io_info);
-//         free(mem_info);
-//         free(cpu_info);
-//         close(log_fd);
-//         return -1;
-//     }
-//     if(pid_==0){
-//         close(pipefd[0]);
-//         getCpuOccupy(cpu_info, retMessage,300);
-//         // child
-//         while(i<=10){
-//             i++;
-//             i%=10;
-            
-//             //mysystem(cmd_date, info_buff, 100);
-//             //printf("%s",info_buff);
-//             //mysystem(cmd_cpu_info_head, info_buff, 100);
-//             //printf("%s",info_buff);
-//             //mysystem(cmd_cpu_info, info_buff, 100);
-//             //printf("子进程获取%s",info_buff);
-
-//             getCurrentTime( retMessage,300);
-//             write(log_fd,retMessage,strlen(retMessage));
-
-//             getCpuUsageInfo(cpu_info, retMessage,300);
-//             write(log_fd,retMessage,strlen(retMessage));
-
-//             getCpuOccupy(cpu_info, retMessage,300);
-//             write(log_fd,retMessage,strlen(retMessage));
-
-//             getMemoryInfo(mem_info,retMessage,300);
-//             write(log_fd,retMessage,strlen(retMessage));
-
-//             getIOInfo(io_info,retMessage,300);
-//             write(log_fd,retMessage,strlen(retMessage));
-            
-//             sleep(10);
-            
-//         }    
-//     }else{
-//         // parent
-//         while( 1){
-//             close(pipefd[1]);
-//             read(pipefd[0],retMessage,sizeof(retMessage));
-//             printf("父进程管道: %s",retMessage);
-//         }
-//     }
-
-    
-//     close(log_fd);
-//     return 0;
+//     int port;  
+//     std::string ipAddress;  
+//     std::string username;  
+//     std::string password;  
+//     const char ConfigFile[]= "config.ini";   
+//     Config configSettings(ConfigFile);  
+      
+//     port = configSettings.Read("email", 0);  
+//     ipAddress = configSettings.Read("max_cpu_rate", ipAddress);  
+//     username = configSettings.Read("max_swap_mem_rate", username);  
+//     password = configSettings.Read("password", string("nms"));  
+//     std::cout<<"port:"<<port<<std::endl;  
+//     std::cout<<"ipAddress:"<<ipAddress<<std::endl;  
+//     std::cout<<"username:"<<username<<std::endl;  
+//     std::cout<<"password:"<<password<<std::endl;  
+      
+//     return 0;  
 // }
-
