@@ -32,6 +32,20 @@ void addfd(int epollfd,int fd,bool enable_et=true){
     setnonblocking(fd);
 }
 
+void removefd(int epollfd,int fd){
+    epoll_ctl(epollfd,EPOLL_CTL_DEL,fd,0);
+    close(fd);
+}
+
+void modfd(int epollfd,int fd ,int ev){
+    epoll_event event;
+    event.data.fd= fd;
+    event.events = ev | EPOLLET | EPOLLONESHOT | EPOLLRDHUP ;
+    epoll_ctl(epollfd,EPOLL_CTL_MOD ,fd ,&event);
+     
+}
+
+
 int main(int argc ,char* argv[]){
     if(argc<=2)
     {
@@ -63,7 +77,7 @@ int main(int argc ,char* argv[]){
     int epoll_fd = epoll_create(5);
     assert(ret!=-1);
     addfd(epoll_fd,listen_fd,true);
-
+    printf("start epoll wait\n");
     while(1){
         int number = epoll_wait(epoll_fd,events,MAX_EVENT_MEMBER,-1);
         if(number<0){
@@ -80,12 +94,26 @@ int main(int argc ,char* argv[]){
                     printf("accept a conn failure ,the errno is %d\n",errno);
                     continue;
                 }
+                printf("a new conn\n");
                 addfd(epoll_fd,connfd);
             }else if(events[i].events & EPOLLIN){
                 char buf[TCP_BUFFER_SIZE];
-                while(1){
-                    memset(buf,'\0',TCP_BUFFER_SIZE);
-                    ret = recv(sockfd,buf,TCP_BUFFER_SIZE-1,0);
+                int length =0;
+                printf("coming a message\n");
+                
+                ret = recv(sockfd,&length,sizeof(length),0);
+                if(ret < 0){
+                    if(errno!=EAGAIN && errno!=EWOULDBLOCK){
+                        close(sockfd);
+                    }
+                    break;
+                }
+                memset(buf,'\0',TCP_BUFFER_SIZE);
+                while(1){                    
+                    // 先读有多少字节
+
+                    ret = recv(sockfd,buf,length,0);
+
                     if(ret < 0){
                         if(errno==EAGAIN || errno== EWOULDBLOCK){
                             break;
@@ -94,14 +122,13 @@ int main(int argc ,char* argv[]){
                         break;
                     }
                 }
-
+                printf("recv _ %d kb :%s",length,buf);
+            }else{
+                printf("something else happened\n");
             }
         }
-
     }
 
-
-
-
-
+    close(listen_fd);
+    return 0;
 }
