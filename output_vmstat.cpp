@@ -12,6 +12,7 @@
 #include "MemoryInfo.h"
 #include "CpuInfo.h"
 #include "IoInfo.h"
+#include "NetInfo.h"
 
 #include <iostream>
 using namespace std;
@@ -88,6 +89,7 @@ int main(){
     MemoryInfo *mem_info = new MemoryInfo();
     IoInfo *io_info = new IoInfo();
     CpuInfo *cpu_info =new CpuInfo();
+    NetInfo *net_info =new NetInfo();
 
     printf("-----------\n");
     int i=0;
@@ -97,18 +99,25 @@ int main(){
     int pipefd[2];
     int ret = pipe(pipefd);
     int j=1;
+
+
     while(j++<6){
-        mem_info->getInfoString(retMessage,300);
+        // mem_info->getInfoString(retMessage,300);
+        // write(log_fd,retMessage,strlen(retMessage));
+
+        // io_info->getInfoString(retMessage,300);
+        // write(log_fd,retMessage,strlen(retMessage));
+
+        // cpu_info->getCpuRateInfoString(retMessage,300);
+        // write(log_fd,retMessage,strlen(retMessage));
+
+        // cpu_info->getInfoString(retMessage,300);
+        // write(log_fd,retMessage,strlen(retMessage));
+
+        net_info->getInfoString(retMessage,300,1);
         write(log_fd,retMessage,strlen(retMessage));
 
-        io_info->getInfoString(retMessage,300);
-        write(log_fd,retMessage,strlen(retMessage));
-
-        cpu_info->getCpuRateInfoString(retMessage,300);
-        write(log_fd,retMessage,strlen(retMessage));
-
-        cpu_info->getInfoString(retMessage,300);
-        write(log_fd,retMessage,strlen(retMessage));
+        
 
         sleep(5);
     }
@@ -147,6 +156,7 @@ int main(){
     delete io_info;
     delete mem_info;
     delete cpu_info;
+    delete net_info;
     close(log_fd);
     return 0;
 }
