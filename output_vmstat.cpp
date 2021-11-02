@@ -3,10 +3,13 @@
 #include <unistd.h>
 #include <sys/sysinfo.h>
 #include <sys/types.h>
+#include <sys/socket.h>
 #include <sys/wait.h>
 #include <string.h>  
+#include <arpa/inet.h>
 #include <sys/stat.h>    
 #include <fcntl.h>
+#include <assert.h>
 #include <time.h>
 #include "config/Config.h"
 #include "MemoryInfo.h"
@@ -82,7 +85,8 @@ const char * logfile_path = "pc_info.log";
 
 
 
-int main(){
+
+int main(int argc ,char* argv[]){
     int log_fd = open(logfile_path,O_RDWR|O_APPEND);
     char retMessage[300];
 
@@ -91,9 +95,27 @@ int main(){
     CpuInfo *cpu_info =new CpuInfo();
     NetInfo *net_info =new NetInfo();
 
-    printf("-----------\n");
-    int i=0;
 
+    printf("-----------\n");
+
+    const char *ip =argv[1];
+    int port = atoi(argv[2]);
+
+    struct sockaddr_in server_address;
+    bzero(&server_address,sizeof(server_address));
+    server_address.sin_family = AF_INET;
+    inet_pton(AF_INET,ip,&server_address.sin_addr);
+    server_address.sin_port = htons(port);
+
+    int sockfd = socket(PF_INET ,SOCK_STREAM,0);
+    assert(sockfd>=0);
+    printf("-----------\n");
+
+    if(connect(sockfd,(struct sockaddr *)&server_address,sizeof(server_address))<0){
+        printf("client connection failed \n");
+        close(sockfd);
+        return 1;
+    }
     
     
     int pipefd[2];
@@ -116,11 +138,14 @@ int main(){
 
         net_info->getInfoString(retMessage,300,1);
         write(log_fd,retMessage,strlen(retMessage));
-
+        int messageLen = sizeof(retMessage);
+        send(sockfd,&messageLen,sizeof(messageLen),0);
+        send(sockfd,retMessage,messageLen,0);
         
-
+        
         sleep(5);
     }
+
 
     // int pid_ = fork();
     // if(pid_==-1)

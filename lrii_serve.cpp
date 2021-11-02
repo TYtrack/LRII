@@ -99,6 +99,7 @@ int main(int argc ,char* argv[]){
             }else if(events[i].events & EPOLLIN){
                 char buf[TCP_BUFFER_SIZE];
                 int length =0;
+                sleep(1.5);
                 printf("coming a message\n");
                 
                 ret = recv(sockfd,&length,sizeof(length),0);
@@ -122,7 +123,7 @@ int main(int argc ,char* argv[]){
                         break;
                     }
                 }
-                printf("recv _ %d kb :%s",length,buf);
+                printf("recv %d b :%s",length,buf);
             }else{
                 printf("something else happened\n");
             }

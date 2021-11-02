@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-
+#include "config/Config.h"
 
 class NetInfo{
 private:
@@ -13,9 +13,12 @@ private:
     float rxcmp;
     float txcmp;
     float rxmcst;
-    float ifutil;
 
 public:
+    NetInfo(float rxpck,float txpck,float rxKB,float txKB,float rxcmp,float txcmp,float rxmcst);
     void getCurrentInfo(int dev);
     void getInfoString(char * retMessage,int msgLen,int dev=0);
+    void monitor(const char* ConfigFile);
+    NetInfo *threshold_netInfo;
+
 };
